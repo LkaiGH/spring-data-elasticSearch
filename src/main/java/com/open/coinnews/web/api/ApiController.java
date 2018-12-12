@@ -39,14 +39,16 @@ public class ApiController {
     private INewsService newsService;
 
 
-    @GetMapping(value = "getNewList")
-    public Object getNewsList(HttpServletRequest request, HttpServletResponse response){
+    @GetMapping(value = "getNewList/{page}/{size}")
+    public Object getNewsList(@PathVariable String page,@PathVariable String size,HttpServletRequest request, HttpServletResponse response){
 
         ResultObject resultObject = new ResultObject();
 
+        Pageable pageable = PageRequest.of(Integer.valueOf(page),Integer.valueOf(size),new Sort(Sort.Direction.DESC,"createDate"));
         //先从es中查询结果集
-        newsEsService.findAll();
+        Page<EsNews> users = newsEsService.findAll(pageable);
 
+        resultObject.setData(users);
         return JsonUtil.toJSONString(resultObject);
     }
 
